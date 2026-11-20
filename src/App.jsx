@@ -30,7 +30,7 @@ function Layout() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/admin-e-commerce">
       <ProductProvider>
         <Routes>
           <Route element={<Layout />}>
