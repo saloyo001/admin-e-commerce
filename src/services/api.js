@@ -1,5 +1,9 @@
 
-const API_URL = 'http://localhost:3000/products'
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL || 'http://localhost:3000'
+).replace(/\/$/, '')
+
+const API_URL = `${API_BASE_URL}/products`
 
 // Reusable function for making API requests
 async function request(url, options = {}) {
