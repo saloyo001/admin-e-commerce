@@ -2,6 +2,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import useProducts from '../hooks/useProducts'
+import { validateProduct } from '../utils/validateProduct'
 
 export default function AddProduct() {
   const { addProduct, error: apiError } = useProducts()
@@ -24,25 +25,56 @@ export default function AddProduct() {
 
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState('')
+  const [validationErrors, setValidationErrors] = useState({})
 
   // Focus the name field when the page opens
   useEffect(() => {
     nameInputRef.current?.focus()
   }, [])
 
-  // Update the form when the administrator types
+  // Update the form and recheck corrected fields
   function handleChange(event) {
     const { name, value } = event.target
 
-    setForm((currentForm) => ({
-      ...currentForm,
+    const updatedForm = {
+      ...form,
       [name]: value,
-    }))
+    }
+
+    setForm(updatedForm)
+
+    // Only update the validation message for the edited field
+    const updatedValidation = validateProduct(updatedForm)
+
+    setValidationErrors((currentErrors) => {
+      const nextErrors = { ...currentErrors }
+
+      if (updatedValidation[name]) {
+        nextErrors[name] = updatedValidation[name]
+      } else {
+        delete nextErrors[name]
+      }
+
+      return nextErrors
+    })
+
+    setFormError('')
   }
 
   // Save the new product
   async function handleSubmit(event) {
     event.preventDefault()
+
+    // Validate all fields before submitting
+    const errors = validateProduct(form)
+
+    setValidationErrors(errors)
+
+    if (Object.keys(errors).length > 0) {
+      setFormError('Please correct the highlighted fields.')
+      return
+    }
+
     setFormError('')
     setSubmitting(true)
 
@@ -80,7 +112,11 @@ export default function AddProduct() {
         </Link>
       </div>
 
-      <form onSubmit={handleSubmit} className="form-card">
+      <form
+        onSubmit={handleSubmit}
+        className="form-card"
+        noValidate
+      >
         {formError && (
           <p className="error-message" role="alert">
             {formError}
@@ -93,8 +129,12 @@ export default function AddProduct() {
           </p>
         )}
 
+        {/* PRODUCT NAME */}
         <div className="form-group">
-          <label htmlFor={`${formId}-name`}>Product Name</label>
+          <label htmlFor={`${formId}-name`}>
+            Product Name
+          </label>
+
           <input
             ref={nameInputRef}
             id={`${formId}-name`}
@@ -103,13 +143,33 @@ export default function AddProduct() {
             placeholder="e.g. Wireless Headphones"
             value={form.name}
             onChange={handleChange}
-            required
             minLength={2}
+            maxLength={80}
+            required
+            aria-invalid={Boolean(validationErrors.name)}
+            aria-describedby={
+              validationErrors.name
+                ? `${formId}-name-error`
+                : undefined
+            }
           />
+
+          {validationErrors.name && (
+            <small
+              id={`${formId}-name-error`}
+              className="field-error"
+            >
+              {validationErrors.name}
+            </small>
+          )}
         </div>
 
+        {/* DESCRIPTION */}
         <div className="form-group">
-          <label htmlFor={`${formId}-description`}>Description</label>
+          <label htmlFor={`${formId}-description`}>
+            Description
+          </label>
+
           <textarea
             id={`${formId}-description`}
             name="description"
@@ -117,19 +177,47 @@ export default function AddProduct() {
             value={form.description}
             onChange={handleChange}
             rows={4}
+            minLength={10}
+            maxLength={500}
             required
+            aria-invalid={Boolean(validationErrors.description)}
+            aria-describedby={
+              validationErrors.description
+                ? `${formId}-description-error`
+                : undefined
+            }
           />
+
+          {validationErrors.description && (
+            <small
+              id={`${formId}-description-error`}
+              className="field-error"
+            >
+              {validationErrors.description}
+            </small>
+          )}
         </div>
 
         <div className="form-grid">
+
+          {/* CATEGORY */}
           <div className="form-group">
-            <label htmlFor={`${formId}-category`}>Category</label>
+            <label htmlFor={`${formId}-category`}>
+              Category
+            </label>
+
             <select
               id={`${formId}-category`}
               name="category"
               value={form.category}
               onChange={handleChange}
               required
+              aria-invalid={Boolean(validationErrors.category)}
+              aria-describedby={
+                validationErrors.category
+                  ? `${formId}-category-error`
+                  : undefined
+              }
             >
               <option value="">Choose a category</option>
               <option value="Electronics">Electronics</option>
@@ -138,10 +226,23 @@ export default function AddProduct() {
               <option value="Accessories">Accessories</option>
               <option value="Other">Other</option>
             </select>
+
+            {validationErrors.category && (
+              <small
+                id={`${formId}-category-error`}
+                className="field-error"
+              >
+                {validationErrors.category}
+              </small>
+            )}
           </div>
 
+          {/* PRICE */}
           <div className="form-group">
-            <label htmlFor={`${formId}-price`}>Price (KSh)</label>
+            <label htmlFor={`${formId}-price`}>
+              Price (KSh)
+            </label>
+
             <input
               id={`${formId}-price`}
               name="price"
@@ -152,11 +253,30 @@ export default function AddProduct() {
               min="0.01"
               step="0.01"
               required
+              aria-invalid={Boolean(validationErrors.price)}
+              aria-describedby={
+                validationErrors.price
+                  ? `${formId}-price-error`
+                  : undefined
+              }
             />
+
+            {validationErrors.price && (
+              <small
+                id={`${formId}-price-error`}
+                className="field-error"
+              >
+                {validationErrors.price}
+              </small>
+            )}
           </div>
 
+          {/* STOCK */}
           <div className="form-group">
-            <label htmlFor={`${formId}-stock`}>Available Stock</label>
+            <label htmlFor={`${formId}-stock`}>
+              Available Stock
+            </label>
+
             <input
               id={`${formId}-stock`}
               name="stock"
@@ -167,12 +287,31 @@ export default function AddProduct() {
               min="0"
               step="1"
               required
+              aria-invalid={Boolean(validationErrors.stock)}
+              aria-describedby={
+                validationErrors.stock
+                  ? `${formId}-stock-error`
+                  : undefined
+              }
             />
+
+            {validationErrors.stock && (
+              <small
+                id={`${formId}-stock-error`}
+                className="field-error"
+              >
+                {validationErrors.stock}
+              </small>
+            )}
           </div>
         </div>
 
+        {/* IMAGE URL */}
         <div className="form-group">
-          <label htmlFor={`${formId}-image`}>Product Image URL</label>
+          <label htmlFor={`${formId}-image`}>
+            Product Image URL
+          </label>
+
           <input
             id={`${formId}-image`}
             name="image"
@@ -180,10 +319,31 @@ export default function AddProduct() {
             placeholder="https://example.com/product.jpg"
             value={form.image}
             onChange={handleChange}
+            aria-invalid={Boolean(validationErrors.image)}
+            aria-describedby={
+              validationErrors.image
+                ? `${formId}-image-error`
+                : `${formId}-image-help`
+            }
           />
-          <small>Optional. A placeholder image is used when left blank.</small>
+
+          {validationErrors.image && (
+            <small
+              id={`${formId}-image-error`}
+              className="field-error"
+            >
+              {validationErrors.image}
+            </small>
+          )}
+
+          {!validationErrors.image && (
+            <small id={`${formId}-image-help`}>
+              Optional. A placeholder image is used when left blank.
+            </small>
+          )}
         </div>
 
+        {/* FORM ACTIONS */}
         <div className="form-actions">
           <Link to="/products" className="secondary-button">
             Cancel

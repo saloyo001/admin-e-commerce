@@ -593,3 +593,14 @@ a {
     flex-direction: column;
   }
 }
+.field-error {
+  color: #b42318;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.form-group input:invalid,
+.form-group select:invalid,
+.form-group textarea:invalid {
+  border-color: #dce0e7;
+}
