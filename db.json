@@ -1,0 +1,40 @@
+{
+  "products": [
+    {
+      "id": "1",
+      "name": "Wireless Headphones",
+      "description": "High-quality wireless headphones with noise cancellation.",
+      "category": "Electronics",
+      "price": 3500,
+      "stock": 15,
+      "image": "https://placehold.co/400x300?text=Headphones"
+    },
+    {
+      "id": "2",
+      "name": "Classic Leather Bag",
+      "description": "Handcrafted leather bag for everyday use.",
+      "category": "Fashion",
+      "price": 4800,
+      "stock": 8,
+      "image": "https://placehold.co/400x300?text=Leather+Bag"
+    },
+    {
+      "id": "3",
+      "name": "Modern Table Lamp",
+      "description": "Minimalist table lamp for a modern workspace.",
+      "category": "Home",
+      "price": 2200,
+      "stock": 20,
+      "image": "https://placehold.co/400x300?text=Table+Lamp"
+    },
+    {
+      "id": "4",
+      "name": "Sports Water Bottle",
+      "description": "Reusable stainless steel sports bottle.",
+      "category": "Accessories",
+      "price": 1200,
+      "stock": 30,
+      "image": "https://placehold.co/400x300?text=Water+Bottle"
+    }
+  ]
+}
